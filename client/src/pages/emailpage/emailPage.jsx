@@ -8,6 +8,7 @@ import axiosClient from "../../axiosClient";
 import EmailModal from "../../components/emailPage/emailModal";
 import EmailCard from "../../components/emailPage/emailCard";
 import { toast } from "sonner";
+import { getWithExpiry } from "../../utils/utilFunctions";
 
 // --- Your Main Page Component (No Changes Needed Here) ---
 const EmailPage = () => {
@@ -20,14 +21,11 @@ const EmailPage = () => {
     // This state will hold the email object to be shown in the modal
     const [selectedEmail, setSelectedEmail] = useState(null);
 
-    const storedUserData = localStorage.getItem("currentUser");
-    // console.log(storedUserData)
-    const currentUser = JSON.parse(storedUserData);
+    const currentUser = getWithExpiry("currentUser");
 
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
+    // const isAuthenticated = getWithExpiry("isAuthenticated");
     // console.log(isAuthenticated, " in emailPage");
 
-    // localStorage.setItem("isAuthenticated","false")
     useEffect(() => {
       async function fetchEmail() {
         const emailData = await axiosClient.get(
@@ -75,7 +73,7 @@ const EmailPage = () => {
                 {" "}
                 <button
                   onClick={() => {
-                    localStorage.setItem("isAuthenticated", "false");
+                    localStorage.removeItem("isAuthenticated");
                     localStorage.removeItem("currentUser");
                     window.location.reload();
                   }}
@@ -99,7 +97,8 @@ const EmailPage = () => {
                           "gemini_api_key",
                           `${updated_gemini_api_key}`
                         );
-                        window.location.reload();
+                        toast.success(`Gemini API updated successfully...`)
+                        document.getElementById("update_gemini_api").value = "";
                       }
                     }}
                     className="flex items-center gap-2 px-4 py-2 bg-red-500 text-sm text-white rounded-lg shadow-md hover:bg-red-600 transition-colors font-medium"
@@ -164,8 +163,7 @@ const EmailPage = () => {
                     // console.log("aiEmailData.data.filteredMessageArray");
                     // console.log(aiEmailData.data.filteredMessageArray);
                   } catch (error) {
-                    console.error(error)
-
+                    console.error(error);
                   }
                 }}
                 className={`w-full sm:w-auto px-6 py-2 ${

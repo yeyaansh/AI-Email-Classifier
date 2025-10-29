@@ -1,3 +1,35 @@
+## 🛠️ Tech Stack
+
+This project is built using the MERN stack (MongoDB, Express, React, Node.js) and is supercharged with Google's AI and Authentication services.
+
+
+
+### Frontend
+
+* **Core:** **React** (A JavaScript library for building user interfaces)
+* **Routing:** **React Router** (For client-side routing and navigation)
+* **Styling:** **Tailwind CSS** (A utility-first CSS framework for rapid UI development)
+* **UI Components:** **Shadcn/UI** (For accessible, beautifully designed components like toasts and buttons)
+* **Authentication:** **@react-oauth/google** (The Google Identity Services library to handle the client-side authentication flow)
+* **HTTP Client:** **Axios** (A promise-based HTTP client for making requests to the backend API)
+
+### Backend
+
+* **Runtime:** **Node.js** (A JavaScript runtime environment)
+* **Framework:** **Express.js** (A minimal and flexible web application framework for building the API)
+* **Google AI:** **@google/genai** (The official SDK to access Google's generative AI models)
+* **Google APIs:** **googleapis** (The official Node.js client library to securely interact with Google APIs, e.g., verifying auth tokens)
+* **Database ODM:** **Mongoose** (An elegant Object Data Modeling (ODM) library for MongoDB)
+
+### Database
+
+* **Database:** **MongoDB** (A NoSQL, document-oriented database to store application data)
+
+### Data & Content
+
+* **Formatting:** **Markdown** (Used to format and render data within the application)
+
+
 
 # Project Setup and Run
 
@@ -44,9 +76,9 @@ This part covers how to get your `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` t
     * **Application type:** Select **Web application**.
     * **Name:** Give it a descriptive name (e.g., "My App Web Client").
     * **Authorized JavaScript origins:** Add the URLs for your frontend.
-        * `http://localhost:5173` (for Vite development)
-    * **Authorized redirect URIs:** Add the URLs your backend will use.
-        * `http://localhost:3000` (for Express development)
+        * `http://localhost:5173` (saying only your frontend is authorized to process login feature)
+    * **Authorized redirect URIs:** Add the URLs your frontend will use.
+        * `http://localhost:3000` (saying google should not send the authorization code other than this domain )
 13. Click the **Create** button.
 14. A modal will appear titled "OAuth client created".
 
@@ -402,29 +434,11 @@ sudo ufw --force enable
 
 In your domain provider's DNS settings, add:
 
-**Type**
+| Type | Name | Value | TTL |
+| :--- | :--- | :--- | :--- |
+| A | @ (or blank) | YOUR-EC2-PUBLIC-IP | 300 |
+| A | www | YOUR-EC2-PUBLIC-IP | 300 |
 
-**Name**
-
-**Value**
-
-**TTL**
-
-A
-
-@ (or blank)
-
-YOUR-EC2-PUBLIC-IP
-
-300
-
-A
-
-www
-
-YOUR-EC2-PUBLIC-IP
-
-300
 
 ### Step 20: Update Nginx for Domain
 
@@ -439,7 +453,7 @@ Update the `server_name` line:
 
 
 ```Nginx
-server_name yourdomain.com [www.yourdomain.com](https://www.yourdomain.com);
+server_name yourdomain.com www.yourdomain.com;
 
 ```
 
@@ -470,7 +484,7 @@ sudo apt install certbot python3-certbot-nginx -y
 
 ```Bash
 # Get SSL certificate (replace with your domain)
-sudo certbot --nginx -d yourdomain.com -d [www.yourdomain.com](https://www.yourdomain.com)
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 
 ```
 
@@ -510,6 +524,26 @@ sudo certbot renew --dry-run
     
 5.  Test www subdomain: `https://www.yourdomain.com`
     
+
+
+
+----------
+
+
+### 📌 Important: Authorizing Your New Domain for Google Services
+
+> **NOTE:**You **must** add your new domain name to your project in the Google Cloud Console.
+>
+> Google requires this verification to protect your user's data and secure your API keys. It ensures that only your *actual* website is allowed to make authentication requests or use your project's services.
+>
+> **How to do it:**
+> 1.  Go to the [Google Cloud Console](https://console.cloud.google.com/).
+> 2.  Navigate to **APIs & Services** -> **Credentials**.
+> 3.  Find and click on the **OAuth 2.0 Client ID** you are using for login.
+> 4.  Under **"Authorized JavaScript origins"**, add your new domain (e.g., `https://your-domain.com`).
+> 5.  Under **"Authorized redirect URIs"**, add your specific callback URL (e.g., `https://your-domain.com/`).
+>
+> **If you skip this step,** Google will block all login attempts and API requests from your new domain, often resulting in a `redirect_uri_mismatch` error.
 
 ----------
 
@@ -702,344 +736,6 @@ Your application is now accessible worldwide and follows industry best practices
 -   **Skill Level:** Beginner to Intermediate
     
 
-## Phase 2: Server Environment Setup
-
-### Step 3: Update System & Install Dependencies
-
-
-```Bash
-# Update system packages
-sudo apt update && sudo apt upgrade -y
-
-# Install Node.js (using NodeSource repository)
-curl -fsSL [https://deb.nodesource.com/setup_18.x](https://deb.nodesource.com/setup_18.x) | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Install PM2 (Process Manager)
-sudo npm install -g pm2
-
-# Install Nginx (Web Server)
-sudo apt install nginx -y
-
-# Install Git
-sudo apt install git -y
-
-# Verify installations
-node --version
-npm --version
-pm2 --version
-nginx -v
-
-```
-
-### Step 4: Clone Your Project
-
-```Bash
-# Navigate to home directory
-cd ~
-
-# Clone your repository (replace with your repo URL)
-git clone [https://github.com/yourusername/your-repo.git](https://github.com/yourusername/your-repo.git)
-cd your-repo
-
-# Or if uploading files directly, create project directory
-# mkdir my-app && cd my-app
-# Then upload your files using SCP or SFTP
-
-```
-
-----------
-
-## Phase 3: Server (Backend) Deployment
-
-### Step 5: Setup Server (Backend)
-
-
-```Bash
-# Navigate to server directory
-cd server  # or wherever your server code is
-
-# Install dependencies
-npm install
-
-# Create environment file
-nano .env
-
-```
-
-Add your environment variables to `.env`:
-
-```Ini, TOML
-PORT=3000
-MONGODB_URI=your_mongodb_atlas_connection_string
-JUDGE0_RAPIDAPI_KEY=your_judge0_api_key
-JUDGE0_RAPIDAPI_HOST=judge0-ce.p.rapidapi.com
-NODE_ENV=production
-# Add any other environment variables your server needs
-
-```
-
-### Step 6: Test Server (Backend) Locally
-
-
-```Bash
-# Test if server starts correctly
-npm start
-# or
-node server.js  # replace with your main file
-
-# Press Ctrl+C to stop after testing
-
-```
-
-### Step 7: Setup PM2 for Server (Backend)
-
-```Bash
-# Start server with PM2
-pm2 start server.js --name "server"  # replace server.js with your main file
-
-# Configure PM2 to start on system boot
-pm2 startup
-pm2 save
-
-# Check status
-pm2 status
-pm2 logs server  # to see logs
-
-```
-
-----------
-
-## Phase 4: Client (Frontend) Deployment
-
-### Step 8: Setup Client (Frontend)
-
-
-```Bash
-# Navigate to client directory
-cd ../client  # or wherever your client code is
-
-# Install dependencies
-npm install
-
-# Create production environment file
-nano .env.production
-
-```
-
-Add your production environment variables:
-
-```Ini, TOML
-VITE_API_URL=http://your-ec2-public-ip:3000
-VITE_JUDGE0_RAPIDAPI_KEY=your_judge0_api_key
-# Add other Vite environment variables
-
-```
-
-### Step 9: Build Client (Frontend)
-
-
-```Bash
-# Build production version
-npm run build
-
-# This creates a 'dist' folder with optimized files
-ls dist/  # verify build was created
-
-```
-
-----------
-
-## Phase 5: Nginx Configuration
-
-### Step 10: Configure Nginx
-
-```Bash
-# Create Nginx configuration for your app
-sudo nano /etc/nginx/sites-available/my-app
-
-```
-
-Add this configuration:
-
-```Nginx
-server {
-    listen 80;
-    server_name your-ec2-public-ip;  # Replace with your actual IP or domain
-
-    # Serve client static files
-    location / {
-        root /home/ubuntu/your-repo/client/dist;  # Update path to your dist folder
-        index index.html;
-        try_files $uri $uri/ /index.html;
-    }
-
-    # Proxy API requests to server
-    location /api/ {
-        proxy_pass http://localhost:3000/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-
-```
-
-### Step 11: Enable Nginx Configuration
-
-
-```Bash
-# Enable the site
-sudo ln -s /etc/nginx/sites-available/my-app /etc/nginx/sites-enabled/
-
-# Remove default site (optional)
-sudo rm /etc/nginx/sites-enabled/default
-
-# Test Nginx configuration
-sudo nginx -t
-
-# Restart Nginx
-sudo systemctl restart nginx
-sudo systemctl enable nginx
-
-```
-
-----------
-
-## Phase 6: Final Configuration & Testing
-
-### Step 12: Update Client (Frontend) API Calls
-
-Make sure your client is making API calls to `/api/` instead of `http://localhost:3000/`. Update your client code:
-
-```JavaScript
-// Instead of: http://localhost:3000/users
-// Use: /api/users
-const API_BASE_URL = '/api';
-
-```
-
-Then rebuild:
-
-
-```Bash
-cd client
-npm run build
-
-```
-
-### Step 13: Firewall Configuration
-
-
-```Bash
-# Configure UFW firewall
-sudo ufw allow ssh
-sudo ufw allow 'Nginx Full'
-sudo ufw allow 3000  # for direct server access if needed
-sudo ufw --force enable
-
-```
-
-### Step 14: Test Your Application
-
-1.  Open your browser and go to `http://your-ec2-public-ip`
-    
-2.  Test the client loads correctly.
-    
-3.  Test API calls work through the client.
-    
-4.  Check PM2 status: `pm2 status`
-    
-5.  Check Nginx status: `sudo systemctl status nginx`
-    
-
-----------
-
-## Phase 7: Domain Setup (Optional)
-
-### Step 15: Custom Domain Configuration
-
-If you have a domain name:
-
-1.  Point your domain to the EC2 public IP in your DNS settings.
-    
-2.  Update Nginx configuration:
-    
-    Bash
-    
-    ```
-    sudo nano /etc/nginx/sites-available/my-app
-    
-    ```
-    
-3.  Change `server_name` to your domain:
-    
-    Nginx
-    
-    ```
-    server_name yourdomain.com [www.yourdomain.com](https://www.yourdomain.com);
-    
-    ```
-    
-4.  Restart Nginx: `sudo systemctl restart nginx`
-    
-
-----------
-
-## Phase 8: SSL Certificate (Recommended)
-
-### Step 16: Install SSL with Let's Encrypt
-
-
-```Bash
-# Install Certbot
-sudo apt install certbot python3-certbot-nginx -y
-
-# Get SSL certificate
-sudo certbot --nginx -d yourdomain.com -d [www.yourdomain.com](https://www.yourdomain.com)
-
-# Test auto-renewal
-sudo certbot renew --dry-run
-
-```
-
-----------
-
-## Maintenance & Troubleshooting
-
-### Useful Commands for Management
-
-
-```Bash
-# Server (backend) management
-pm2 restart server
-pm2 stop server
-pm2 logs server
-pm2 delete server
-
-# Nginx management
-sudo systemctl restart nginx
-sudo systemctl status nginx
-sudo nginx -t
-
-# System monitoring
-htop  # install with: sudo apt install htop
-df -h  # disk usage
-free -h  # memory usage
-
-# Update application
-cd ~/your-repo
-git pull origin main
-cd server && npm install
-cd ../client && npm install && npm run build
-pm2 restart server
-
-```
 
 ### Common Issues & Solutions
 
@@ -1093,16 +789,10 @@ pm2 restart server
 
 ### Security Best Practices
 
--   Keep system updated: `sudo apt update && sudo apt upgrade`
-    
--   Use strong passwords and **SSH keys only**
-    
--   Configure firewall properly with **UFW**
-    
--   **Regular backups** of your application and database
-    
--   **Monitor logs** regularly
-    
--   Use **environment variables** for sensitive data
-    
--   Enable **fail2ban** for SSH protection: `sudo apt install fail2ban`
+* Keep system updated: `sudo apt update && sudo apt upgrade`
+* Use strong passwords and **SSH keys only**
+* Configure a firewall properly with **UFW**
+* Perform **regular backups** of your application and database
+* **Monitor logs** regularly
+* Use **environment variables** for sensitive data
+* Enable **fail2ban** for SSH protection: `sudo apt install fail2ban`

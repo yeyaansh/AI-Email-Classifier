@@ -4,10 +4,10 @@ import HomePage from "./pages/homepage";
 import PageNotFound from "./pages/errorpage/pageNotFound";
 import EmailPage from "./pages/emailpage/emailPage";
 import EmailLayout from "./layouts/email/emailLayout";
+import { getWithExpiry } from "./utils/utilFunctions";
 
 function App() {
-  const isAuthenticated = localStorage.getItem("isAuthenticated");
-  // console.log(isAuthenticated);
+  // const isAuthenticated = getWithExpiry("isAuthenticated");
 
   const router = createBrowserRouter([
     {

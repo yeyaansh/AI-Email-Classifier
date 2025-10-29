@@ -1,24 +1,21 @@
 import { useGoogleLogin } from "@react-oauth/google";
 import axiosClient from "../../axiosClient";
 import { toast } from "sonner";
+import { getWithExpiry, setWithExpiry } from "../../utils/utilFunctions";
 
 export default function GoogleLoginPage() {
-  const isAuthenticated = localStorage.getItem("isAuthenticated");
+  // const isAuthenticated = getWithExpiry("isAuthenticated");
 
   const googleResponse = async (authResponse) => {
     try {
       if (authResponse.code) {
         // console.log("authResponse");
         // console.log(authResponse);
-        // alert(`code is: ${authResponse.code}`)
         const result = await axiosClient.post(`/auth/google/login`, {
           code: authResponse.code,
         });
         // console.log("result: ", result);
         const { emailId, name, avatar } = result.data.reply;
-
-        // console.log("result.data.reply");
-        // console.log(result.data.reply);
 
         // console.log("result.data");
         // console.log(result.data);
@@ -26,8 +23,7 @@ export default function GoogleLoginPage() {
         if (result.data.success) {
           {
             toast.success(`${result.data.message}`);
-
-            localStorage.setItem(`isAuthenticated`, "true");
+            setWithExpiry(`isAuthenticated`, result.data.success, 3600000);
           }
           const userData = {
             emailId,
@@ -35,10 +31,7 @@ export default function GoogleLoginPage() {
             avatar,
           };
 
-          const userDataJSON = JSON.stringify(userData);
-
-          localStorage.setItem("currentUser", userDataJSON);
-
+          setWithExpiry("currentUser", userData, 3600000);
           setTimeout(() => window.location.reload(), 1000);
         }
       }

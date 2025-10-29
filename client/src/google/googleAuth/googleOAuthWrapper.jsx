@@ -5,7 +5,7 @@ import GoogleLoginPage from "../../pages/auth/login";
 const GoogleOAuthWrapper = () => {
   return (
     <div>
-      <GoogleOAuthProvider clientId= {import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
         <GoogleLoginPage />
       </GoogleOAuthProvider>
     </div>
