@@ -1,5 +1,6 @@
 
 import ReactMarkdown from "react-markdown";
+import getLabelColor from "./getLableColor";
 
 const EmailCard = ({ sender, label, bodySnippet, onClick }) => {
   return (

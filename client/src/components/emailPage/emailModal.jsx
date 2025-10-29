@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import getLabelColor from "./getLableColor";
 
 // --- Email Modal Component ---
 const EmailModal = ({ email, onClose }) => {
@@ -96,9 +97,9 @@ const EmailModal = ({ email, onClose }) => {
           {/* Snippet */}
           <div>
             <span className="text-sm font-medium text-gray-500">Snippet</span>
-            <p className="mt-2 rounded-md border bg-gray-50 p-3 text-base text-gray-600">
+            <div className="mt-2 rounded-md border bg-gray-50 p-3 text-base text-gray-600">
               <ReactMarkdown>{email.snippet}</ReactMarkdown>
-            </p>
+            </div>
           </div>
         </div>
       </div>

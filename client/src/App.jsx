@@ -7,7 +7,7 @@ import EmailLayout from "./layouts/email/emailLayout";
 
 function App() {
   const isAuthenticated = localStorage.getItem("isAuthenticated");
-  console.log(isAuthenticated);
+  // console.log(isAuthenticated);
 
   const router = createBrowserRouter([
     {

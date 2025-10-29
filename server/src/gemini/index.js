@@ -112,6 +112,15 @@ const aiEmailClassifier = async (req, res) => {
   } catch (error) {
     console.error(`Error in aiEmailClassifier: `, error);
 
+    if(error.ApiError)
+    {
+      return res.status(error.ApiError.error.code).send({
+        success:false,
+        message:`${error.ApiError.error.message}`
+      })
+    }
+
+
     res.send({
       success: false,
       message: `${error.message}`,
