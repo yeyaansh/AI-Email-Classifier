@@ -9,6 +9,9 @@ import EmailModal from "../../components/emailPage/emailModal";
 import EmailCard from "../../components/emailPage/emailCard";
 import { toast } from "sonner";
 import { getWithExpiry } from "../../utils/utilFunctions";
+import LoadingEmailsSkeleton from "../../components/emailPage/LoadingEmailsSkeleton";
+import AIEmailClassifyingModal from "../../components/emailPage/aiClassifyingEmailsModal";
+import AIEmailClassifyingNotifier from "../../components/emailPage/aiClassifyingEmailsModal";
 
 // --- Your Main Page Component (No Changes Needed Here) ---
 const EmailPage = () => {
@@ -20,8 +23,9 @@ const EmailPage = () => {
 
     // This state will hold the email object to be shown in the modal
     const [selectedEmail, setSelectedEmail] = useState(null);
-
     const currentUser = getWithExpiry("currentUser");
+
+    const [isLoading, setIsLoading] = useState(true);
 
     // const isAuthenticated = getWithExpiry("isAuthenticated");
     // console.log(isAuthenticated, " in emailPage");
@@ -33,9 +37,11 @@ const EmailPage = () => {
         );
         // console.log(emailData.data);
         setEmailDataArray(emailData.data);
+        setIsLoading(false);
       }
       fetchEmail();
     }, [emailCount]);
+
 
     return (
       <div className="w-full">
@@ -90,14 +96,17 @@ const EmailPage = () => {
                   />
                   <button
                     onClick={() => {
-                      const updated_gemini_api_key =
-                        document.getElementById("update_gemini_api").value;
+                      const updated_gemini_api_key = document
+                        .getElementById("update_gemini_api")
+                        .value.trim();
+                      // console.log("updated_gemini_api_key",updated_gemini_api_key);
+
                       if (!updated_gemini_api_key == (null || "")) {
                         localStorage.setItem(
                           "gemini_api_key",
                           `${updated_gemini_api_key}`
                         );
-                        toast.success(`Gemini API updated successfully...`)
+                        toast.success(`Gemini API updated successfully...`);
                         document.getElementById("update_gemini_api").value = "";
                       }
                     }}
@@ -134,6 +143,8 @@ const EmailPage = () => {
                 </div>
               </div>
 
+{isAIClassifying && <AIEmailClassifyingNotifier/>}
+
               {/* Styled Classify Button */}
               <button
                 disabled={isAIClassifying}
@@ -164,6 +175,16 @@ const EmailPage = () => {
                     // console.log(aiEmailData.data.filteredMessageArray);
                   } catch (error) {
                     console.error(error);
+                    if (error.status == 403 || error.status == 400)
+                      toast.error(
+                        `Provided Gemini API is Invalid. Please check your API key.`
+                      );
+                      else
+                      {
+                        toast.error(`${error}`)
+                      }
+                  } finally {
+                    setIsAIClassifying(false);
                   }
                 }}
                 className={`w-full sm:w-auto px-6 py-2 ${
@@ -171,8 +192,7 @@ const EmailPage = () => {
                     ? "bg-gray-300 text-black hover:bg-gray-400"
                     : "bg-blue-600 text-white hover:bg-blue-700"
                 } rounded-lg shadow-md transition-colors font-semibold`}
-              >
-                Classify Emails
+              >✨ AI Classify
               </button>
             </div>
 
@@ -180,26 +200,37 @@ const EmailPage = () => {
             <main className="flex flex-col gap-4">
               {/* {console.log("hello", emailDataArray?.filteredMessageArray.length)} */}
 
-              {emailDataArray?.filteredMessageArray?.length > 0 ? (
-                emailDataArray?.filteredMessageArray.map((email, index) => (
-                  <EmailCard
-                    key={email.id}
-                    sender={email.from}
-                    label={email.label || ""}
-                    bodySnippet={email.snippet}
-                    // Pass the click handler to set the selected email
-                    onClick={() => setSelectedEmail(email)}
-                  />
-                ))
+              {!isLoading ? (
+                emailDataArray?.filteredMessageArray?.length > 0 ? (
+                  emailDataArray?.filteredMessageArray.map((email, index) => (
+                    <EmailCard
+                      key={email.id}
+                      sender={email.from}
+                      label={email.label || ""}
+                      bodySnippet={email.snippet}
+                      // Pass the click handler to set the selected email
+                      onClick={() => setSelectedEmail(email)}
+                    />
+                  ))
+                ) : (
+                  // A placeholder for when no emails are loaded
+                  <div className="tex t-center text-gray-500 p-10 bg-white rounded-lg shadow-md">
+                    Click "Classify Emails" to fetch and categorize your inbox.
+                  </div>
+                )
               ) : (
-                // A placeholder for when no emails are loaded
-                <div className="text-center text-gray-500 p-10 bg-white rounded-lg shadow-md">
-                  Click "Classify Emails" to fetch and categorize your inbox.
+                <div className="flex flex-col gap-3">
+                  {" "}
+                  <LoadingEmailsSkeleton /> <LoadingEmailsSkeleton />
+                  <LoadingEmailsSkeleton /> <LoadingEmailsSkeleton />{" "}
+                  <LoadingEmailsSkeleton /> <LoadingEmailsSkeleton />
                 </div>
               )}
             </main>
           </div>
         </div>
+
+      
 
         {/* This will render the modal component *only* if 'selectedEmail' is not null. */}
         {selectedEmail && (

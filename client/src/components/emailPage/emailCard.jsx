@@ -1,4 +1,3 @@
-
 import ReactMarkdown from "react-markdown";
 import getLabelColor from "./getLableColor";
 
@@ -20,7 +19,10 @@ const EmailCard = ({ sender, label, bodySnippet, onClick }) => {
           </span>
         )}
       </div>
-      <div className="text-gray-600 line-clamp-2"> <ReactMarkdown>{bodySnippet}</ReactMarkdown></div>
+      <div className="text-gray-600 line-clamp-2">
+        {" "}
+        <ReactMarkdown>{bodySnippet}</ReactMarkdown>
+      </div>
     </div>
   );
 };

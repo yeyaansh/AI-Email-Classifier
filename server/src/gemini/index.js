@@ -107,23 +107,33 @@ const aiEmailClassifier = async (req, res) => {
     res.status(200).send({
       success: true,
       message: "AI Classified your Emails Successfully!",
-      filteredMessageArray:freshAIEmailData,
+      filteredMessageArray: freshAIEmailData,
     });
   } catch (error) {
     console.error(`Error in aiEmailClassifier: `, error);
 
-    if(error.ApiError)
-    {
-      return res.status(error.ApiError.error.code).send({
-        success:false,
-        message:`${error.ApiError.error.message}`
-      })
+    // Check for the specific 403 Permission Denied error
+    if (error.status === 403) {
+      return res.status(403).send({
+        success: false,
+        // Send your desired user-friendly message
+        message:
+          "Provided Gemini API is Invalid or not authorized. Please check your API key.",
+      });
     }
 
+    // Catch other known API errors (e.g., 400 Bad Request, 500 Server Error)
+    if (error.status) {
+      return res.status(error.status).send({
+        success: false,
+        message: `An API error occurred: ${error.message}`,
+      });
+    }
 
-    res.send({
+    // Fallback for any other unexpected errors (e.g., JSON.parse failure)
+    res.status(500).send({
       success: false,
-      message: `${error.message}`,
+      message: `An unexpected server error occurred: ${error.message}`,
     });
   }
 };

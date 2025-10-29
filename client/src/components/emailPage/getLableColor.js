@@ -17,5 +17,4 @@ const getLabelColor = (label) => {
   }
 };
 
-
 export default getLabelColor;
